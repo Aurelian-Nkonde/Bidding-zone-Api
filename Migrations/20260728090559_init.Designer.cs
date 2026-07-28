@@ -12,8 +12,8 @@ using bidding_zone_api.AppContext;
 namespace bidding_zone_api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260727143227_adding-seeding-data")]
-    partial class addingseedingdata
+    [Migration("20260728090559_init")]
+    partial class init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -57,6 +57,7 @@ namespace bidding_zone_api.Migrations
                         new
                         {
                             Id = new Guid("ac4aab6e-2d5f-4d84-a3e4-6b4d0cb8e001"),
+                            CreatedAt = new DateTime(2026, 7, 26, 0, 0, 0, 0, DateTimeKind.Utc),
                             ItemId = new Guid("9c4aab6e-2d5f-4d84-a3e4-6b4d0cb8d001"),
                             Price = 160.00m,
                             Status = 2,
@@ -65,6 +66,7 @@ namespace bidding_zone_api.Migrations
                         new
                         {
                             Id = new Guid("ac4aab6e-2d5f-4d84-a3e4-6b4d0cb8e002"),
+                            CreatedAt = new DateTime(2026, 7, 27, 0, 0, 0, 0, DateTimeKind.Utc),
                             ItemId = new Guid("9c4aab6e-2d5f-4d84-a3e4-6b4d0cb8d001"),
                             Price = 170.00m,
                             Status = 2,
@@ -73,6 +75,7 @@ namespace bidding_zone_api.Migrations
                         new
                         {
                             Id = new Guid("ac4aab6e-2d5f-4d84-a3e4-6b4d0cb8e003"),
+                            CreatedAt = new DateTime(2026, 7, 26, 0, 0, 0, 0, DateTimeKind.Utc),
                             ItemId = new Guid("9c4aab6e-2d5f-4d84-a3e4-6b4d0cb8d002"),
                             Price = 310.00m,
                             Status = 2,
@@ -81,6 +84,7 @@ namespace bidding_zone_api.Migrations
                         new
                         {
                             Id = new Guid("ac4aab6e-2d5f-4d84-a3e4-6b4d0cb8e004"),
+                            CreatedAt = new DateTime(2026, 7, 27, 0, 0, 0, 0, DateTimeKind.Utc),
                             ItemId = new Guid("9c4aab6e-2d5f-4d84-a3e4-6b4d0cb8d003"),
                             Price = 820.00m,
                             Status = 2,
@@ -89,6 +93,7 @@ namespace bidding_zone_api.Migrations
                         new
                         {
                             Id = new Guid("ac4aab6e-2d5f-4d84-a3e4-6b4d0cb8e005"),
+                            CreatedAt = new DateTime(2026, 7, 25, 0, 0, 0, 0, DateTimeKind.Utc),
                             ItemId = new Guid("9c4aab6e-2d5f-4d84-a3e4-6b4d0cb8d004"),
                             Price = 130.00m,
                             Status = 1,
@@ -97,6 +102,7 @@ namespace bidding_zone_api.Migrations
                         new
                         {
                             Id = new Guid("ac4aab6e-2d5f-4d84-a3e4-6b4d0cb8e006"),
+                            CreatedAt = new DateTime(2026, 7, 26, 0, 0, 0, 0, DateTimeKind.Utc),
                             ItemId = new Guid("9c4aab6e-2d5f-4d84-a3e4-6b4d0cb8d005"),
                             Price = 260.00m,
                             Status = 2,
@@ -105,6 +111,7 @@ namespace bidding_zone_api.Migrations
                         new
                         {
                             Id = new Guid("ac4aab6e-2d5f-4d84-a3e4-6b4d0cb8e007"),
+                            CreatedAt = new DateTime(2026, 7, 27, 0, 0, 0, 0, DateTimeKind.Utc),
                             ItemId = new Guid("9c4aab6e-2d5f-4d84-a3e4-6b4d0cb8d006"),
                             Price = 410.00m,
                             Status = 2,
@@ -113,6 +120,7 @@ namespace bidding_zone_api.Migrations
                         new
                         {
                             Id = new Guid("ac4aab6e-2d5f-4d84-a3e4-6b4d0cb8e008"),
+                            CreatedAt = new DateTime(2026, 7, 20, 0, 0, 0, 0, DateTimeKind.Utc),
                             ItemId = new Guid("9c4aab6e-2d5f-4d84-a3e4-6b4d0cb8d007"),
                             Price = 95.00m,
                             Status = 3,
@@ -121,6 +129,7 @@ namespace bidding_zone_api.Migrations
                         new
                         {
                             Id = new Guid("ac4aab6e-2d5f-4d84-a3e4-6b4d0cb8e009"),
+                            CreatedAt = new DateTime(2026, 7, 26, 0, 0, 0, 0, DateTimeKind.Utc),
                             ItemId = new Guid("9c4aab6e-2d5f-4d84-a3e4-6b4d0cb8d008"),
                             Price = 210.00m,
                             Status = 2,
@@ -129,6 +138,7 @@ namespace bidding_zone_api.Migrations
                         new
                         {
                             Id = new Guid("ac4aab6e-2d5f-4d84-a3e4-6b4d0cb8e010"),
+                            CreatedAt = new DateTime(2026, 7, 27, 0, 0, 0, 0, DateTimeKind.Utc),
                             ItemId = new Guid("9c4aab6e-2d5f-4d84-a3e4-6b4d0cb8d009"),
                             Price = 510.00m,
                             Status = 2,
@@ -137,6 +147,7 @@ namespace bidding_zone_api.Migrations
                         new
                         {
                             Id = new Guid("ac4aab6e-2d5f-4d84-a3e4-6b4d0cb8e011"),
+                            CreatedAt = new DateTime(2026, 7, 24, 0, 0, 0, 0, DateTimeKind.Utc),
                             ItemId = new Guid("9c4aab6e-2d5f-4d84-a3e4-6b4d0cb8d010"),
                             Price = 360.00m,
                             Status = 1,
@@ -145,6 +156,7 @@ namespace bidding_zone_api.Migrations
                         new
                         {
                             Id = new Guid("ac4aab6e-2d5f-4d84-a3e4-6b4d0cb8e012"),
+                            CreatedAt = new DateTime(2026, 7, 27, 0, 0, 0, 0, DateTimeKind.Utc),
                             ItemId = new Guid("9c4aab6e-2d5f-4d84-a3e4-6b4d0cb8d011"),
                             Price = 115.00m,
                             Status = 2,
@@ -153,6 +165,7 @@ namespace bidding_zone_api.Migrations
                         new
                         {
                             Id = new Guid("ac4aab6e-2d5f-4d84-a3e4-6b4d0cb8e013"),
+                            CreatedAt = new DateTime(2026, 7, 19, 0, 0, 0, 0, DateTimeKind.Utc),
                             ItemId = new Guid("9c4aab6e-2d5f-4d84-a3e4-6b4d0cb8d012"),
                             Price = 45.00m,
                             Status = 3,
@@ -161,6 +174,7 @@ namespace bidding_zone_api.Migrations
                         new
                         {
                             Id = new Guid("ac4aab6e-2d5f-4d84-a3e4-6b4d0cb8e014"),
+                            CreatedAt = new DateTime(2026, 7, 26, 0, 0, 0, 0, DateTimeKind.Utc),
                             ItemId = new Guid("9c4aab6e-2d5f-4d84-a3e4-6b4d0cb8d013"),
                             Price = 75.00m,
                             Status = 2,
@@ -169,6 +183,7 @@ namespace bidding_zone_api.Migrations
                         new
                         {
                             Id = new Guid("ac4aab6e-2d5f-4d84-a3e4-6b4d0cb8e015"),
+                            CreatedAt = new DateTime(2026, 7, 27, 0, 0, 0, 0, DateTimeKind.Utc),
                             ItemId = new Guid("9c4aab6e-2d5f-4d84-a3e4-6b4d0cb8d014"),
                             Price = 610.00m,
                             Status = 2,
@@ -177,6 +192,7 @@ namespace bidding_zone_api.Migrations
                         new
                         {
                             Id = new Guid("ac4aab6e-2d5f-4d84-a3e4-6b4d0cb8e016"),
+                            CreatedAt = new DateTime(2026, 7, 25, 0, 0, 0, 0, DateTimeKind.Utc),
                             ItemId = new Guid("9c4aab6e-2d5f-4d84-a3e4-6b4d0cb8d015"),
                             Price = 90.00m,
                             Status = 2,
@@ -230,6 +246,7 @@ namespace bidding_zone_api.Migrations
                         new
                         {
                             Id = new Guid("9c4aab6e-2d5f-4d84-a3e4-6b4d0cb8d001"),
+                            CreatedAt = new DateTime(2026, 7, 20, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "A well preserved antique wooden chair.",
                             EndTimer = new DateTime(2026, 8, 3, 0, 0, 0, 0, DateTimeKind.Utc),
                             Image = "",
@@ -242,6 +259,7 @@ namespace bidding_zone_api.Migrations
                         new
                         {
                             Id = new Guid("9c4aab6e-2d5f-4d84-a3e4-6b4d0cb8d002"),
+                            CreatedAt = new DateTime(2026, 7, 22, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Classic film camera in working condition.",
                             EndTimer = new DateTime(2026, 8, 5, 0, 0, 0, 0, DateTimeKind.Utc),
                             Image = "",
@@ -254,6 +272,7 @@ namespace bidding_zone_api.Migrations
                         new
                         {
                             Id = new Guid("9c4aab6e-2d5f-4d84-a3e4-6b4d0cb8d003"),
+                            CreatedAt = new DateTime(2026, 7, 24, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Lightly used mountain bike, great condition.",
                             EndTimer = new DateTime(2026, 8, 10, 0, 0, 0, 0, DateTimeKind.Utc),
                             Image = "",
@@ -266,6 +285,7 @@ namespace bidding_zone_api.Migrations
                         new
                         {
                             Id = new Guid("9c4aab6e-2d5f-4d84-a3e4-6b4d0cb8d004"),
+                            CreatedAt = new DateTime(2026, 7, 18, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Genuine leather jacket, size medium.",
                             EndTimer = new DateTime(2026, 8, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Image = "",
@@ -278,6 +298,7 @@ namespace bidding_zone_api.Migrations
                         new
                         {
                             Id = new Guid("9c4aab6e-2d5f-4d84-a3e4-6b4d0cb8d005"),
+                            CreatedAt = new DateTime(2026, 7, 25, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Six string acoustic guitar with case.",
                             EndTimer = new DateTime(2026, 8, 12, 0, 0, 0, 0, DateTimeKind.Utc),
                             Image = "",
@@ -290,6 +311,7 @@ namespace bidding_zone_api.Migrations
                         new
                         {
                             Id = new Guid("9c4aab6e-2d5f-4d84-a3e4-6b4d0cb8d006"),
+                            CreatedAt = new DateTime(2026, 7, 26, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Latest generation gaming console, barely used.",
                             EndTimer = new DateTime(2026, 8, 15, 0, 0, 0, 0, DateTimeKind.Utc),
                             Image = "",
@@ -302,6 +324,7 @@ namespace bidding_zone_api.Migrations
                         new
                         {
                             Id = new Guid("9c4aab6e-2d5f-4d84-a3e4-6b4d0cb8d007"),
+                            CreatedAt = new DateTime(2026, 7, 15, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Modern glass top coffee table.",
                             EndTimer = new DateTime(2026, 7, 30, 0, 0, 0, 0, DateTimeKind.Utc),
                             Image = "",
@@ -314,6 +337,7 @@ namespace bidding_zone_api.Migrations
                         new
                         {
                             Id = new Guid("9c4aab6e-2d5f-4d84-a3e4-6b4d0cb8d008"),
+                            CreatedAt = new DateTime(2026, 7, 21, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Sturdy wooden office desk with drawers.",
                             EndTimer = new DateTime(2026, 8, 6, 0, 0, 0, 0, DateTimeKind.Utc),
                             Image = "",
@@ -326,6 +350,7 @@ namespace bidding_zone_api.Migrations
                         new
                         {
                             Id = new Guid("9c4aab6e-2d5f-4d84-a3e4-6b4d0cb8d009"),
+                            CreatedAt = new DateTime(2026, 7, 23, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Unlocked smartphone, excellent condition.",
                             EndTimer = new DateTime(2026, 8, 9, 0, 0, 0, 0, DateTimeKind.Utc),
                             Image = "",
@@ -338,6 +363,7 @@ namespace bidding_zone_api.Migrations
                         new
                         {
                             Id = new Guid("9c4aab6e-2d5f-4d84-a3e4-6b4d0cb8d010"),
+                            CreatedAt = new DateTime(2026, 7, 19, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Elegant stainless steel wristwatch.",
                             EndTimer = new DateTime(2026, 8, 2, 0, 0, 0, 0, DateTimeKind.Utc),
                             Image = "",
@@ -350,6 +376,7 @@ namespace bidding_zone_api.Migrations
                         new
                         {
                             Id = new Guid("9c4aab6e-2d5f-4d84-a3e4-6b4d0cb8d011"),
+                            CreatedAt = new DateTime(2026, 7, 27, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Tall wooden bookshelf with five shelves.",
                             EndTimer = new DateTime(2026, 8, 14, 0, 0, 0, 0, DateTimeKind.Utc),
                             Image = "",
@@ -362,6 +389,7 @@ namespace bidding_zone_api.Migrations
                         new
                         {
                             Id = new Guid("9c4aab6e-2d5f-4d84-a3e4-6b4d0cb8d012"),
+                            CreatedAt = new DateTime(2026, 7, 14, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Stainless steel electric kettle, fast boil.",
                             EndTimer = new DateTime(2026, 7, 29, 0, 0, 0, 0, DateTimeKind.Utc),
                             Image = "",
@@ -374,6 +402,7 @@ namespace bidding_zone_api.Migrations
                         new
                         {
                             Id = new Guid("9c4aab6e-2d5f-4d84-a3e4-6b4d0cb8d013"),
+                            CreatedAt = new DateTime(2026, 7, 22, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Well maintained skateboard, ready to ride.",
                             EndTimer = new DateTime(2026, 8, 8, 0, 0, 0, 0, DateTimeKind.Utc),
                             Image = "",
@@ -386,6 +415,7 @@ namespace bidding_zone_api.Migrations
                         new
                         {
                             Id = new Guid("9c4aab6e-2d5f-4d84-a3e4-6b4d0cb8d014"),
+                            CreatedAt = new DateTime(2026, 7, 25, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Original oil painting, framed.",
                             EndTimer = new DateTime(2026, 8, 20, 0, 0, 0, 0, DateTimeKind.Utc),
                             Image = "",
@@ -398,6 +428,7 @@ namespace bidding_zone_api.Migrations
                         new
                         {
                             Id = new Guid("9c4aab6e-2d5f-4d84-a3e4-6b4d0cb8d015"),
+                            CreatedAt = new DateTime(2026, 7, 20, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Complete set of gardening tools.",
                             EndTimer = new DateTime(2026, 8, 4, 0, 0, 0, 0, DateTimeKind.Utc),
                             Image = "",
@@ -469,6 +500,9 @@ namespace bidding_zone_api.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<int>("Role")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -484,7 +518,8 @@ namespace bidding_zone_api.Migrations
                             FirstName = "jack",
                             Gender = 0,
                             LastName = "phiri",
-                            Password = "password"
+                            Password = "$2a$11$Gdb7jhHcS3IG96XZX1Aw/O169GIvyQWA4LmqkBt1G01AuMhSGKnWG",
+                            Role = 0
                         },
                         new
                         {
@@ -493,7 +528,8 @@ namespace bidding_zone_api.Migrations
                             FirstName = "lewis",
                             Gender = 0,
                             LastName = "moyo",
-                            Password = "password"
+                            Password = "$2a$11$Gdb7jhHcS3IG96XZX1Aw/O169GIvyQWA4LmqkBt1G01AuMhSGKnWG",
+                            Role = 0
                         },
                         new
                         {
@@ -502,7 +538,8 @@ namespace bidding_zone_api.Migrations
                             FirstName = "taza",
                             Gender = 0,
                             LastName = "thousand",
-                            Password = "password"
+                            Password = "$2a$11$Gdb7jhHcS3IG96XZX1Aw/O169GIvyQWA4LmqkBt1G01AuMhSGKnWG",
+                            Role = 0
                         },
                         new
                         {
@@ -511,7 +548,8 @@ namespace bidding_zone_api.Migrations
                             FirstName = "admin",
                             Gender = 0,
                             LastName = "admin",
-                            Password = "password"
+                            Password = "$2a$11$Gdb7jhHcS3IG96XZX1Aw/O169GIvyQWA4LmqkBt1G01AuMhSGKnWG",
+                            Role = 0
                         },
                         new
                         {
@@ -520,7 +558,8 @@ namespace bidding_zone_api.Migrations
                             FirstName = "ngoni",
                             Gender = 0,
                             LastName = "mathews",
-                            Password = "password"
+                            Password = "$2a$11$Gdb7jhHcS3IG96XZX1Aw/O169GIvyQWA4LmqkBt1G01AuMhSGKnWG",
+                            Role = 0
                         });
                 });
 

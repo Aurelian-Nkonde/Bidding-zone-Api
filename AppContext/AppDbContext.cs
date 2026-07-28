@@ -1,6 +1,7 @@
 
 
 using bidding_zone_api.Models;
+using bidding_zone_api.Utils;
 using Microsoft.EntityFrameworkCore;
 
 namespace bidding_zone_api.AppContext;
@@ -66,13 +67,14 @@ public class AppDbContext: DbContext
 
         });
 
+        var hashedPassword = "$2a$11$Gdb7jhHcS3IG96XZX1Aw/O169GIvyQWA4LmqkBt1G01AuMhSGKnWG";
 
         modelBuilder.Entity<User>().HasData(
-            new User{Id = Guid.Parse("8c4aab6e-2d5f-4d84-a3e4-6b4d0cb8c001"), FirstName = "jack", LastName = "phiri", Email ="ja@gmail.com", Password = "password"},
-            new User{Id = Guid.Parse("8c4aab6e-2d5f-4d84-a3e4-6b4d0cb8c002"), FirstName = "lewis", LastName = "moyo", Email ="lewis@gmail.com", Password = "password"},
-            new User{Id = Guid.Parse("8c4aab6e-2d5f-4d84-a3e4-6b4d0cb8c003"), FirstName = "taza", LastName = "thousand", Email ="taza@gmail.com", Password = "password"},
-            new User{Id = Guid.Parse("8c4aab6e-2d5f-4d84-a3e4-6b4d0cb8c004"), FirstName = "admin", LastName = "admin", Email ="admin@gmail.com", Password = "password"},
-            new User{Id = Guid.Parse("8c4aab6e-2d5f-4d84-a3e4-6b4d0cb8c005"), FirstName = "ngoni", LastName = "mathews", Email ="ngoni@gmail.com", Password = "password"}
+            new User{Id = Guid.Parse("8c4aab6e-2d5f-4d84-a3e4-6b4d0cb8c001"), FirstName = "jack", LastName = "phiri", Email ="ja@gmail.com", Password =  hashedPassword},
+            new User{Id = Guid.Parse("8c4aab6e-2d5f-4d84-a3e4-6b4d0cb8c002"), FirstName = "lewis", LastName = "moyo", Email ="lewis@gmail.com", Password = hashedPassword},
+            new User{Id = Guid.Parse("8c4aab6e-2d5f-4d84-a3e4-6b4d0cb8c003"), FirstName = "taza", LastName = "thousand", Email ="taza@gmail.com", Password = hashedPassword},
+            new User{Id = Guid.Parse("8c4aab6e-2d5f-4d84-a3e4-6b4d0cb8c004"), FirstName = "admin", LastName = "admin", Email ="admin@gmail.com", Password = hashedPassword},
+            new User{Id = Guid.Parse("8c4aab6e-2d5f-4d84-a3e4-6b4d0cb8c005"), FirstName = "ngoni", LastName = "mathews", Email ="ngoni@gmail.com", Password = hashedPassword}
         );
 
         // Id variables

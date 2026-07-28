@@ -28,10 +28,13 @@ public class UsersController: ControllerBase
     private readonly IValidator<LoginDto> _loginValidator;
     private readonly IConfiguration _configuration;
 
+    private readonly IAuthorizationService _authorizationService;
+
     private readonly ILogger<UsersController> _logger;
     private readonly JwtOptions _jwtOptions;
 
     public UsersController(IUsersService service,
+    IAuthorizationService authorizationService,
      IValidator<UpdateUserDto> updateUserValidator,
      ILogger<UsersController> logger,
      IValidator<AddressDto> addressValidator,
@@ -49,6 +52,7 @@ public class UsersController: ControllerBase
         _loginValidator = loginValidator;
         _configuration = configuration;
         _jwtOptions = options.Value;
+        _authorizationService = authorizationService;
     }
 
     [HttpPost("login")]
@@ -107,10 +111,10 @@ public class UsersController: ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<UserResponseDto>> GetMe()
     {
-        var userId = HttpContext.User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
+        var userId = HttpContext.User.FindFirst(JwtRegisteredClaimNames.Sub);
         if(userId == null) return NotFound();
 
-        if(!Guid.TryParse(userId, out var parsedId))
+        if(!Guid.TryParse(userId.Value, out var parsedId))
         {
             return BadRequest();
         }
@@ -125,13 +129,20 @@ public class UsersController: ControllerBase
 
 
     [HttpGet]
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult<IEnumerable<UserResponseDto>>> GetUsers()
     {
         _logger.LogInformation("fetching all users");
         var result = await _usersService.GetUsers();
         return Ok(result);
+    }
+
+    [HttpGet("test")]
+    [Authorize]
+    public async Task<ActionResult> TestAuthorize()
+    {
+        return Ok("working!");
     }
 
 
@@ -158,6 +169,13 @@ public class UsersController: ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<UserResponseDto>> UpdateUser([FromBody] UpdateUserDto data, [FromRoute] Guid id)
     {
+        var userData = await _usersService.GetUser(id);
+        var authResult = await _authorizationService.AuthorizeAsync(User, userData, "IsOwnerPolicy");
+        if (!authResult.Succeeded)
+        {
+            return Forbid();
+        }
+
         _logger.LogInformation("updating user {UserId}", id);
         ValidationResult validationResult = await _updateUserValidator.ValidateAsync(data);
         if(!validationResult.IsValid)
@@ -216,7 +234,6 @@ public class UsersController: ControllerBase
 
 
     [HttpPost]
-    [Authorize]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status201Created)]
     public async Task<ActionResult> AddUser([FromBody] CreateUserDto data)

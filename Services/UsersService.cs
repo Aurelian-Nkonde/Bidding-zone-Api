@@ -31,12 +31,16 @@ public class UsersService: IUsersService
         }
         return FormatUserResponse(user);
     }
+
+
     public async Task<IEnumerable<UserResponseDto>> GetUsers()
     {
         _logger.LogInformation("fetching all users");
         var users = await _context.Users.ToListAsync();
         return users.Select(user => FormatUserResponse(user));
     }
+
+
     public async Task<UserResponseDto> AddUser(CreateUserDto data)
     {
         _logger.LogInformation("checking if user exist");
@@ -84,6 +88,8 @@ public class UsersService: IUsersService
         _logger.LogInformation("new user is successfully added");
         return FormatUserResponse(user);
     }
+
+
     public async Task<UserResponseDto?> UpdateUser(UpdateUserDto data, Guid id)
     {
         _logger.LogInformation("looking for a user with id: {id}", id);
@@ -124,6 +130,8 @@ public class UsersService: IUsersService
         _logger.LogInformation("User data is updated");
         return FormatUserResponse(user);
     }
+
+
     public  async Task<UserResponseDto?> UpdateAddress(AddressDto data, Guid id)
     {
         _logger.LogInformation("Looking for a user with id: {id}", id);
@@ -150,6 +158,7 @@ public class UsersService: IUsersService
         return FormatUserResponse(user);
     }
 
+
     public async Task<UserResponseDto?> Login(string email, string password)
     {
         var user = await _context.Users.FirstOrDefaultAsync(user => user.Email == email);
@@ -157,6 +166,7 @@ public class UsersService: IUsersService
         if(!BCrypt.Net.BCrypt.Verify(password, user.Password)) return null;
         return FormatUserResponse(user);
     }
+
 
     public UserResponseDto FormatUserResponse(User value)
     {
@@ -171,5 +181,4 @@ public class UsersService: IUsersService
             Role = value.Role
         };
     }
-
 }

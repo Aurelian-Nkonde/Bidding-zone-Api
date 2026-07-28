@@ -497,6 +497,9 @@ namespace bidding_zone_api.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<int>("Role")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -512,7 +515,8 @@ namespace bidding_zone_api.Migrations
                             FirstName = "jack",
                             Gender = 0,
                             LastName = "phiri",
-                            Password = "password"
+                            Password = "$2a$11$Gdb7jhHcS3IG96XZX1Aw/O169GIvyQWA4LmqkBt1G01AuMhSGKnWG",
+                            Role = 0
                         },
                         new
                         {
@@ -521,7 +525,8 @@ namespace bidding_zone_api.Migrations
                             FirstName = "lewis",
                             Gender = 0,
                             LastName = "moyo",
-                            Password = "password"
+                            Password = "$2a$11$Gdb7jhHcS3IG96XZX1Aw/O169GIvyQWA4LmqkBt1G01AuMhSGKnWG",
+                            Role = 0
                         },
                         new
                         {
@@ -530,7 +535,8 @@ namespace bidding_zone_api.Migrations
                             FirstName = "taza",
                             Gender = 0,
                             LastName = "thousand",
-                            Password = "password"
+                            Password = "$2a$11$Gdb7jhHcS3IG96XZX1Aw/O169GIvyQWA4LmqkBt1G01AuMhSGKnWG",
+                            Role = 0
                         },
                         new
                         {
@@ -539,7 +545,8 @@ namespace bidding_zone_api.Migrations
                             FirstName = "admin",
                             Gender = 0,
                             LastName = "admin",
-                            Password = "password"
+                            Password = "$2a$11$Gdb7jhHcS3IG96XZX1Aw/O169GIvyQWA4LmqkBt1G01AuMhSGKnWG",
+                            Role = 0
                         },
                         new
                         {
@@ -548,7 +555,8 @@ namespace bidding_zone_api.Migrations
                             FirstName = "ngoni",
                             Gender = 0,
                             LastName = "mathews",
-                            Password = "password"
+                            Password = "$2a$11$Gdb7jhHcS3IG96XZX1Aw/O169GIvyQWA4LmqkBt1G01AuMhSGKnWG",
+                            Role = 0
                         });
                 });
 

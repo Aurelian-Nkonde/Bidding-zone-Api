@@ -11,6 +11,9 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using bidding_zone_api.Configuration;
+using Microsoft.AspNetCore.Authentication;
+using bidding_zone_api.Utils;
+using Microsoft.AspNetCore.Authorization;
 
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
@@ -51,12 +54,14 @@ try
     builder.Services.AddScoped<IItemsService, ItemService>();
     builder.Services.AddScoped<IBidService, BidService>();
     
-
     builder.Services.AddSerilog((services, lc) => lc
         .ReadFrom.Configuration(builder.Configuration)
         .ReadFrom.Services(services)
         .Enrich.FromLogContext());
         
+    var jwtSection = builder.Configuration.GetSection("Jwt");
+    var jwtKey = jwtSection["Key"] ?? throw new InvalidOperationException("Jwt:Key is not configured");
+
     builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         .AddJwtBearer(options =>
         {
@@ -66,13 +71,23 @@ try
                 ValidateAudience = true,
                 ValidateLifetime = true,
                 ValidateIssuerSigningKey = true,
-                ValidIssuer = builder.Configuration.GetValue<string>("jwt:Issuer"),
-                ValidAudience = "your_audience",
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("your_secret_key"))
+                ValidIssuer = jwtSection["Issuer"],
+                ValidAudience = jwtSection["Audience"],
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
             };
         });
 
     builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("Jwt"));
+
+    builder.Services.AddScoped<IAuthorizationHandler, IsUserOwnerHandler>();
+    builder.Services.AddAuthorization(options =>
+    {
+        options.AddPolicy("IsOwnerPolicy", policy =>
+        {
+            policy.Requirements.Add(new IsUserOwnerRequirement());
+        });
+    });
+
 
     var app = builder.Build();
 
