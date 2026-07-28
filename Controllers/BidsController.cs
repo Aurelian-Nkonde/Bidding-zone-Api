@@ -14,12 +14,12 @@ namespace bidding_zone_api.Controllers;
 public class BidsController: ControllerBase
 {
     private readonly IBidService _bidService;
-    private readonly ILogger<Bid> _bidLogger;
+    private readonly ILogger<BidsController> _bidLogger;
     private readonly IValidator<CreateBidDto> _createBidValidator;
     private readonly IValidator<UpdateBidDto> _updateBidValidator;
     private readonly IValidator<UpdateBidStatusDto> _updateBidStatusValidator;
 
-    public BidsController(IBidService service, ILogger<Bid> bidLogger, 
+    public BidsController(IBidService service, ILogger<BidsController> bidLogger, 
         IValidator<CreateBidDto> createBidValidator,
         IValidator<UpdateBidDto> updateBidValidator,
         IValidator<UpdateBidStatusDto> updateBidStatusValidator
@@ -36,6 +36,7 @@ public class BidsController: ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult<IEnumerable<BidResponseDto>>> GetBids()
     {
+        _bidLogger.LogInformation("Fetching all bids");
         var bids = await _bidService.GetBids();
         return Ok(bids);
     }
@@ -46,10 +47,15 @@ public class BidsController: ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<IEnumerable<BidResponseDto>>> GetUserBids([FromRoute] Guid id)
     {
+        _bidLogger.LogInformation("Fetching bids for user {UserId}", id);
        try
         {
             var bids = await _bidService.GetBids();
-            if(bids == null) return NotFound();
+            if(bids == null)
+            {
+                _bidLogger.LogWarning("No bids found for user {UserId}", id);
+                return NotFound();
+            }
             return Ok(bids);
         }catch(BadHttpRequestException ex)
         {
@@ -62,7 +68,12 @@ public class BidsController: ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult<IEnumerable<BidResponseDto>>> GetABid([FromRoute]Guid id)
     {
+        _bidLogger.LogInformation("Fetching bid {BidId}", id);
         var bid = await _bidService.GetBid(id);
+        if(bid == null)
+        {
+            _bidLogger.LogWarning("Bid {BidId} not found", id);
+        }
         return Ok(bid);
     }
 
@@ -78,10 +89,16 @@ public class BidsController: ControllerBase
             return BadRequest();
         }
 
+        _bidLogger.LogInformation("Attempting to delete bid {BidId} for user {UserId}", id, parsed);
         try
         {
             var bid = await _bidService.DeleteBid(id, parsed);
-            if(bid == null) return NotFound();
+            if(bid == null)
+            {
+                _bidLogger.LogWarning("Bid {BidId} not found for deletion", id);
+                return NotFound();
+            }
+            _bidLogger.LogInformation("Bid {BidId} deleted successfully", id);
             return NoContent();
         }catch(BadHttpRequestException ex)
         {
@@ -96,11 +113,16 @@ public class BidsController: ControllerBase
     public async Task<ActionResult> AddABid([FromBody] CreateBidDto data)
     {
         ValidationResult validationResult = await _createBidValidator.ValidateAsync(data);
-        if(!validationResult.IsValid) return BadRequest();
-        Console.WriteLine($"{data.ItemId} {data.UserId} {data.Price}");
+        if(!validationResult.IsValid)
+        {
+            _bidLogger.LogWarning("Validation failed for new bid on item {ItemId}", data.ItemId);
+            return BadRequest();
+        }
+        _bidLogger.LogInformation("Creating bid for item {ItemId} by user {UserId} at price {Price}", data.ItemId, data.UserId, data.Price);
         try
         {
             var bid = await _bidService.CreateBid(data);
+            _bidLogger.LogInformation("Bid {BidId} created successfully", bid.Id);
             return CreatedAtAction(nameof(GetABid), new {id = bid.Id}, bid);
         }catch(BadHttpRequestException ex)
         {
@@ -115,12 +137,22 @@ public class BidsController: ControllerBase
     public async Task<ActionResult> ChangeBidStatus([FromBody] UpdateBidStatusDto data, [FromRoute] Guid id)
     {
         ValidationResult validationResult = await _updateBidStatusValidator.ValidateAsync(data);
-        if(!validationResult.IsValid) return BadRequest();
+        if(!validationResult.IsValid)
+        {
+            _bidLogger.LogWarning("Validation failed for status update on bid {BidId}", id);
+            return BadRequest();
+        }
 
+        _bidLogger.LogInformation("Changing status of bid {BidId} to {Status}", id, data.Status);
         try
         {
             var bid = await _bidService.ChangeBidStatus(data.Status, id);
-            if(bid == null) return NotFound();
+            if(bid == null)
+            {
+                _bidLogger.LogWarning("Bid {BidId} not found for status update", id);
+                return NotFound();
+            }
+            _bidLogger.LogInformation("Bid {BidId} status updated successfully", id);
             return NoContent();
         }catch(BadHttpRequestException ex)
         {
@@ -135,11 +167,17 @@ public class BidsController: ControllerBase
     public async Task<ActionResult> UpdateABid([FromBody] CreateBidDto data)
     {
         ValidationResult validationResult = await _createBidValidator.ValidateAsync(data);
-        if(!validationResult.IsValid) return BadRequest();
+        if(!validationResult.IsValid)
+        {
+            _bidLogger.LogWarning("Validation failed for bid update on item {ItemId}", data.ItemId);
+            return BadRequest();
+        }
 
+        _bidLogger.LogInformation("Updating bid for item {ItemId} by user {UserId} at price {Price}", data.ItemId, data.UserId, data.Price);
         try
         {
             var bid = await _bidService.CreateBid(data);
+            _bidLogger.LogInformation("Bid {BidId} created successfully", bid.Id);
             return CreatedAtAction(nameof(GetABid), new {id = bid.Id}, bid);
         }catch(BadHttpRequestException ex)
         {

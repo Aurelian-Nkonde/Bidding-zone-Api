@@ -15,12 +15,12 @@ namespace bidding_zone_api.Controllers;
 [Route("/api/{controller}")]
 public class ItemsController: ControllerBase
 {
-    private readonly ILogger<Item> _logger;
+    private readonly ILogger<ItemsController> _logger;
     private readonly IValidator<UpdateItemDto> _updateItemValidator;
     private readonly IValidator<UpdateItemStatusDtos> _updateItemStatusValidator;
     private readonly IValidator<CreateItemDto> _createItemValidator;
     private readonly IItemsService _itemsService;
-    public ItemsController(ILogger<Item> logger, IItemsService itemService,
+    public ItemsController(ILogger<ItemsController> logger, IItemsService itemService,
     IValidator<UpdateItemDto> updateItemValidator,
     IValidator<UpdateItemStatusDtos> updateItemStatusValidator,
     IValidator<CreateItemDto> createItemValidator
@@ -37,6 +37,7 @@ public class ItemsController: ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult<IEnumerable<ItemResponseDto>>> GetItems()
     {
+        _logger.LogInformation("Fetching all items");
         return Ok(await _itemsService.GetItems());
     }
 
@@ -45,8 +46,13 @@ public class ItemsController: ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<IEnumerable<ItemResponseDto>>> GetItem([FromRoute] Guid id)
     {
+        _logger.LogInformation("Fetching item {ItemId}", id);
         var result = await _itemsService.GetItem(id);
-        if(result == null) return NotFound();
+        if(result == null)
+        {
+            _logger.LogWarning("Item {ItemId} not found", id);
+            return NotFound();
+        }
         return Ok(result);
     }
 
@@ -56,10 +62,11 @@ public class ItemsController: ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<ActionResult> UpdateItem([FromBody] UpdateItemDto item, [FromRoute] Guid id)
     {
+        _logger.LogInformation("Attempting to update item {ItemId}", id);
         ValidationResult validationResult = await _updateItemValidator.ValidateAsync(item);
         if (!validationResult.IsValid)
         {
-            _logger.LogWarning("Validation failed");
+            _logger.LogWarning("Validation failed for item {ItemId} update", id);
             return BadRequest();
         }
         try
@@ -70,7 +77,12 @@ public class ItemsController: ControllerBase
                 return BadRequest();
             }
             var result = await _itemsService.UpdateItem(item, id, parsed);
-            if(result == null) return NotFound();
+            if(result == null)
+            {
+                _logger.LogWarning("Item {ItemId} not found for update", id);
+                return NotFound();
+            }
+            _logger.LogInformation("Item {ItemId} updated successfully", id);
             return NoContent();
         }
         catch(BadHttpRequestException ex)
@@ -86,10 +98,11 @@ public class ItemsController: ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<ActionResult> UpdateItemStatus([FromBody] UpdateItemStatusDtos item, [FromRoute] Guid id)
     {
+        _logger.LogInformation("Attempting to update status of item {ItemId}", id);
         ValidationResult validationResult = await _updateItemStatusValidator.ValidateAsync(item);
         if (!validationResult.IsValid)
         {
-            _logger.LogWarning("Validation failed");
+            _logger.LogWarning("Validation failed for item {ItemId} status update", id);
             return BadRequest();
         }
         try
@@ -100,7 +113,12 @@ public class ItemsController: ControllerBase
                 return BadRequest();
             }
             var result = await _itemsService.UpdateItemStatus(item.Status, id, parsed);
-            if(result == null) return NotFound();
+            if(result == null)
+            {
+                _logger.LogWarning("Item {ItemId} not found for status update", id);
+                return NotFound();
+            }
+            _logger.LogInformation("Item {ItemId} status updated successfully", id);
             return NoContent();
         }
         catch(BadHttpRequestException ex)
@@ -116,15 +134,17 @@ public class ItemsController: ControllerBase
     [ProducesResponseType(StatusCodes.Status201Created)]
     public async Task<ActionResult> AddItem([FromBody] CreateItemDto item)
     {
+        _logger.LogInformation("Attempting to add item titled {Title} for user {UserId}", item.Title, item.UserId);
         ValidationResult validationResult = await _createItemValidator.ValidateAsync(item);
         if (!validationResult.IsValid)
         {
-            _logger.LogWarning("Invalid validation");
+            _logger.LogWarning("Validation failed for new item titled {Title}", item.Title);
             return BadRequest();
         }
         try
         {
             var result = await _itemsService.AddItem(item);
+            _logger.LogInformation("Item {ItemId} created successfully", result.Id);
             return CreatedAtAction(nameof(GetItem), new {id = result.Id}, result);
         }
         catch(BadHttpRequestException ex)

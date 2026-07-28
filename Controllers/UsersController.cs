@@ -99,6 +99,7 @@ public class UsersController: ControllerBase
         return Ok(new LoginResponseDto{Token = jwt});
     }
 
+
     [HttpGet("me")]
     [Authorize]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -133,6 +134,7 @@ public class UsersController: ControllerBase
         return Ok(result);
     }
 
+
     [HttpGet("{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -147,6 +149,7 @@ public class UsersController: ControllerBase
         }
         return Ok(result);
     }
+
 
     [HttpPut("{id}/update")]
     [Authorize]
@@ -179,6 +182,7 @@ public class UsersController: ControllerBase
         }
     }
 
+
     [HttpPut("{id}/update/address")]
     [Authorize]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -209,6 +213,7 @@ public class UsersController: ControllerBase
             return BadRequest();
         }
     }
+
 
     [HttpPost]
     [Authorize]
