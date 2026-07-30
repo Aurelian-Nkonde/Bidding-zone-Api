@@ -12,4 +12,6 @@ public interface IBidService
     Task<bool?> DeleteBid(Guid id,Guid userId);
     Task <BidResponseDto?> UpdateBid(UpdateBidDto bid, Guid id); 
     Task<BidResponseDto?> ChangeBidStatus(string status, Guid id);
+    Task<int> GetBidsCount();
+    Task<int> GetUserBidsCount(Guid id);
 }

@@ -12,7 +12,7 @@ using bidding_zone_api.Dtos.Validators;
 namespace bidding_zone_api.Controllers;
 
 [ApiController]
-[Route("/api/{controller}")]
+[Route("/api/[controller]")]
 public class ItemsController: ControllerBase
 {
     private readonly ILogger<ItemsController> _logger;
@@ -39,6 +39,24 @@ public class ItemsController: ControllerBase
     {
         _logger.LogInformation("Fetching all items");
         return Ok(await _itemsService.GetItems());
+    }
+
+    [HttpGet("count")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<ActionResult<int>> GetItemsCount()
+    {
+        _logger.LogInformation("Fetching total item count");
+        var count = await _itemsService.GetItemsCount();
+        return Ok(count);
+    }
+
+    [HttpGet("user/{id}/count")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<ActionResult<int>> GetUserItemsCount([FromRoute] Guid id)
+    {
+        _logger.LogInformation("Fetching item count for user {UserId}", id);
+        var count = await _itemsService.GetUserItemsCount(id);
+        return Ok(count);
     }
 
     [HttpGet("{id}")]
@@ -71,12 +89,8 @@ public class ItemsController: ControllerBase
         }
         try
         {
-            var userId = "0be17b09-2ff6-4938-bdf3-c73b3d3b423a";
-            if(!Guid.TryParse(userId, out Guid parsed))
-            {
-                return BadRequest();
-            }
-            var result = await _itemsService.UpdateItem(item, id, parsed);
+
+            var result = await _itemsService.UpdateItem(item, id);
             if(result == null)
             {
                 _logger.LogWarning("Item {ItemId} not found for update", id);
@@ -107,12 +121,8 @@ public class ItemsController: ControllerBase
         }
         try
         {
-            var userId = "0be17b09-2ff6-4938-bdf3-c73b3d3b423a";
-            if(!Guid.TryParse(userId, out Guid parsed))
-            {
-                return BadRequest();
-            }
-            var result = await _itemsService.UpdateItemStatus(item.Status, id, parsed);
+
+            var result = await _itemsService.UpdateItemStatus(item.Status, id);
             if(result == null)
             {
                 _logger.LogWarning("Item {ItemId} not found for status update", id);

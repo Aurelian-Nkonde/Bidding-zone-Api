@@ -1,14 +1,13 @@
-using bidding_zone_api.Models;
 using Microsoft.AspNetCore.Authorization;
 
 namespace bidding_zone_api.Utils;
 
-public class IsUserOwnerHandler: AuthorizationHandler<IsUserOwnerRequirement, User>
+public class IsUserOwnerHandler: AuthorizationHandler<IsUserOwnerRequirement, Guid>
 {
     protected override Task HandleRequirementAsync(
-        AuthorizationHandlerContext context, 
+        AuthorizationHandlerContext context,
         IsUserOwnerRequirement requirement,
-        User user)
+        Guid resourceId)
     {
     var userId = context.User.FindFirst("sub")?.Value;
     if(userId == null)
@@ -19,7 +18,7 @@ public class IsUserOwnerHandler: AuthorizationHandler<IsUserOwnerRequirement, Us
         {
             return Task.CompletedTask;
         }
-    if(user.Id == parsedId)
+    if(resourceId == parsedId)
         {
          context.Succeed(requirement);
         }

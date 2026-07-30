@@ -14,6 +14,7 @@ using bidding_zone_api.Configuration;
 using Microsoft.AspNetCore.Authentication;
 using bidding_zone_api.Utils;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.OpenApi;
 
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
@@ -33,8 +34,33 @@ try
     options.UseNpgsql(connectionString); 
     });
     builder.Services.AddControllers();
-    // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-    builder.Services.AddOpenApi();
+
+    builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddSwaggerGen(options =>
+    {
+        options.SwaggerDoc("v1", new OpenApiInfo
+        {
+            Title = "Bidding Zone API",
+            Version = "v1"
+        });
+
+        options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+        {
+            Name = "Authorization",
+            Type = SecuritySchemeType.Http,
+            Scheme = "bearer",
+            BearerFormat = "JWT",
+            In = ParameterLocation.Header,
+            Description = "Enter a valid JWT token"
+        });
+
+        options.AddSecurityRequirement(document =>
+        {
+            var requirement = new OpenApiSecurityRequirement();
+            requirement.Add(new OpenApiSecuritySchemeReference("Bearer", document), new List<string>());
+            return requirement;
+        });
+    });
 
     builder.Services.AddScoped<IValidator<AddressDto>, AddressValidator>();
     builder.Services.AddScoped<IValidator<CreateUserDto>, CreateUserValidator>();
@@ -95,7 +121,11 @@ try
     // Configure the HTTP request pipeline.
     if (app.Environment.IsDevelopment())
     {
-        app.MapOpenApi();
+        app.UseSwagger();
+        app.UseSwaggerUI(options =>
+        {
+            options.SwaggerEndpoint("/swagger/v1/swagger.json", "Bidding Zone API v1");
+        });
     }
 
     app.UseSerilogRequestLogging();

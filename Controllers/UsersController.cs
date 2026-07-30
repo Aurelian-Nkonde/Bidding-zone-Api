@@ -18,7 +18,7 @@ using Microsoft.IdentityModel.Tokens;
 namespace bidding_zone_api.Controllers;
 
 [ApiController]
-[Route("/api/{controller}")]
+[Route("/api/[controller]")]
 public class UsersController: ControllerBase
 {
     private readonly IUsersService _usersService;
@@ -129,7 +129,6 @@ public class UsersController: ControllerBase
 
 
     [HttpGet]
-    [Authorize(Roles = "Admin")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult<IEnumerable<UserResponseDto>>> GetUsers()
     {
@@ -169,8 +168,7 @@ public class UsersController: ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<UserResponseDto>> UpdateUser([FromBody] UpdateUserDto data, [FromRoute] Guid id)
     {
-        var userData = await _usersService.GetUser(id);
-        var authResult = await _authorizationService.AuthorizeAsync(User, userData, "IsOwnerPolicy");
+        var authResult = await _authorizationService.AuthorizeAsync(User, id, "IsOwnerPolicy");
         if (!authResult.Succeeded)
         {
             return Forbid();
@@ -208,6 +206,12 @@ public class UsersController: ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<UserResponseDto>> UpdateUserAddress([FromBody] AddressDto data, [FromRoute] Guid id)
     {
+        var authResult = await _authorizationService.AuthorizeAsync(User, id, "IsOwnerPolicy");
+        if (!authResult.Succeeded)
+        {
+            return Forbid();
+        }
+
         _logger.LogInformation("updating address for user {UserId}", id);
         ValidationResult validationResult = await _updateAddressValidator.ValidateAsync(data);
         if(!validationResult.IsValid)

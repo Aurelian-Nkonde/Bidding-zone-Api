@@ -74,26 +74,13 @@ public class ItemService: IItemsService
         return items.Select(item => MapToResponseDto(item));
     }
 
-    public async Task<bool?> UpdateItem(UpdateItemDto itemData, Guid id, Guid userId)
+    public async Task<bool?> UpdateItem(UpdateItemDto itemData, Guid id)
     {
-        _logger.LogInformation("checking if user with id: {id} exist", userId);
-        if (await UserExist(userId) == false)
-        {
-            return null;
-        }
-
         _logger.LogInformation("checking if item with id: {id} exist", id);
         var item = await _context.Items.FindAsync(id);
         if(item == null)
         {
             return null;
-        }
-
-        _logger.LogInformation("Checking if user is the item owner");
-        if(item.UserId != userId)
-        {
-            _logger.LogWarning("User with id: {id} is not this item owner", userId);
-            throw new BadHttpRequestException("User must be an item owner");
         }
 
         if(itemData == null || itemData!.EndTimer == null)
@@ -118,13 +105,8 @@ public class ItemService: IItemsService
         return true;
     }
 
-    public async Task<ItemResponseDto?> UpdateItemStatus(string status, Guid id, Guid userId)
+    public async Task<ItemResponseDto?> UpdateItemStatus(string status, Guid id)
     {
-         _logger.LogInformation("checking if user with id: {id} exist", userId);
-        if (await UserExist(userId) == false)
-        {
-            return null;
-        }
 
         _logger.LogInformation("checking if item with id: {id} exist", id);
         var item = await _context.Items.FindAsync(id);
@@ -132,13 +114,7 @@ public class ItemService: IItemsService
         {
             return null;
         }
-
-        _logger.LogInformation("Checking if user is the item owner");
-        if(item.UserId != userId)
-        {
-            _logger.LogWarning("User with id: {id} is not this item owner", userId);
-            throw new BadHttpRequestException("User must be an item owner");
-        }
+    
         if(!Enum.TryParse<ItemStatus>(status, out var parsedStatus))
         {
             _logger.LogWarning("Invalid status enum value: {Status}", status);
@@ -207,6 +183,18 @@ public class ItemService: IItemsService
         return MapToResponseDto(item);
     }
 
+
+    public async Task<int> GetItemsCount()
+    {
+        _logger.LogInformation("Counting all items");
+        return await _context.Items.CountAsync();
+    }
+
+    public async Task<int> GetUserItemsCount(Guid id)
+    {
+        _logger.LogInformation("Counting items for user {id}", id);
+        return await _context.Items.Where(item => item.UserId == id).CountAsync();
+    }
 
     private static ItemResponseDto MapToResponseDto(Item item)
     {

@@ -123,19 +123,18 @@ public class BidService: IBidService
             _logger.LogWarning("Bid data missing for bid {id}", id);
             return null;
         }
-        if(!Enum.TryParse<BidStatus>(bidData.Status, out var parsedStatus))
-        {
-            _logger.LogWarning("Invalid bid status value: {Status}", bidData.Status);
-            throw new BadHttpRequestException("Error parsing bid status value");
-        }
         var bid = await _context.Bids.FindAsync(id);
         if(bid == null)
         {
             _logger.LogWarning("Bid with id {id} is not found", id);
             return null;
         }
+        Console.WriteLine(bid.Status);
+        if(bid.Status != BidStatus.Active)
+        {
+            throw new BadHttpRequestException("bid can't be updated");
+        }
         bid.Price = bidData.Price;
-        bid.Status = parsedStatus;
         await _context.SaveChangesAsync();
         _logger.LogInformation("Bid {id} is updated", id);
         return BidResponseFormater(bid);
@@ -159,6 +158,18 @@ public class BidService: IBidService
         await _context.SaveChangesAsync();
         _logger.LogInformation("Bid {id} status is updated", id);
         return BidResponseFormater(bid);
+    }
+
+    public async Task<int> GetBidsCount()
+    {
+        _logger.LogInformation("Counting all bids");
+        return await _context.Bids.CountAsync();
+    }
+
+    public async Task<int> GetUserBidsCount(Guid id)
+    {
+        _logger.LogInformation("Counting bids for user {id}", id);
+        return await _context.Bids.Where(bid => bid.UserId == id).CountAsync();
     }
 
     public BidResponseDto BidResponseFormater(Bid bid)

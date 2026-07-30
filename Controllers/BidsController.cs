@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace bidding_zone_api.Controllers;
 
 [ApiController]
-[Route("/api/{controller}")]
+[Route("/api/[controller]")]
 public class BidsController: ControllerBase
 {
     private readonly IBidService _bidService;
@@ -41,6 +41,16 @@ public class BidsController: ControllerBase
         return Ok(bids);
     }
 
+    [HttpGet("count")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<ActionResult<int>> GetBidsCount()
+    {
+        _bidLogger.LogInformation("Fetching total bid count");
+        var count = await _bidService.GetBidsCount();
+        return Ok(count);
+    }
+
+
     [HttpGet("user/{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -50,7 +60,7 @@ public class BidsController: ControllerBase
         _bidLogger.LogInformation("Fetching bids for user {UserId}", id);
        try
         {
-            var bids = await _bidService.GetBids();
+            var bids = await _bidService.GetUserBids(id);
             if(bids == null)
             {
                 _bidLogger.LogWarning("No bids found for user {UserId}", id);
@@ -62,6 +72,15 @@ public class BidsController: ControllerBase
             _bidLogger.LogWarning("Error {ex}", ex.Message);
             return BadRequest();
         }
+    }
+
+    [HttpGet("user/{id}/count")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<ActionResult<int>> GetUserBidsCount([FromRoute] Guid id)
+    {
+        _bidLogger.LogInformation("Fetching bid count for user {UserId}", id);
+        var count = await _bidService.GetUserBidsCount(id);
+        return Ok(count);
     }
 
     [HttpGet("{id}")]
@@ -164,20 +183,22 @@ public class BidsController: ControllerBase
     [HttpPut("{id}")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult> UpdateABid([FromBody] CreateBidDto data)
+    public async Task<ActionResult> UpdateABid([FromBody] UpdateBidDto data, [FromRoute] Guid id)
     {
-        ValidationResult validationResult = await _createBidValidator.ValidateAsync(data);
+        ValidationResult validationResult = await _updateBidValidator.ValidateAsync(data);
         if(!validationResult.IsValid)
         {
-            _bidLogger.LogWarning("Validation failed for bid update on item {ItemId}", data.ItemId);
             return BadRequest();
         }
 
-        _bidLogger.LogInformation("Updating bid for item {ItemId} by user {UserId} at price {Price}", data.ItemId, data.UserId, data.Price);
+        _bidLogger.LogInformation("Updating bid with id {id}",id);
         try
         {
-            var bid = await _bidService.CreateBid(data);
-            _bidLogger.LogInformation("Bid {BidId} created successfully", bid.Id);
+            var bid = await _bidService.UpdateBid(data, id);
+            if(bid == null)
+            {
+                return NotFound();
+            }
             return CreatedAtAction(nameof(GetABid), new {id = bid.Id}, bid);
         }catch(BadHttpRequestException ex)
         {
