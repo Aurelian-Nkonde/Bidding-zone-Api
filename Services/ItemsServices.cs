@@ -66,12 +66,28 @@ public class ItemService: IItemsService
         return MapToResponseDto(item);
     }
 
-    public async Task<IEnumerable<ItemResponseDto>> GetItems()
+    public async Task<PagedResult<ItemResponseDto>> GetItems(int page, ItemStatus? status = null)
     {
+        PaginationParams paginationParams = new PaginationParams{PageNumber = page};
+
         _logger.LogInformation("Fetching all items");
-        var items = await _context.Items.ToListAsync();
+        var baseQuery = _context.Items.AsNoTracking().AsQueryable();
+        if (status.HasValue)
+        {
+            baseQuery = baseQuery.Where(item => item.Status == status.Value);
+        }
+
+        var count = await baseQuery.CountAsync();
+
+        var items = await baseQuery
+            .OrderByDescending(p => p.CreatedAt)
+            .Skip((paginationParams.PageNumber - 1) * paginationParams.PageSize)
+            .Take(paginationParams.PageSize)
+            .ToListAsync();
+
         _logger.LogInformation("Fetched {Count} items", items.Count);
-        return items.Select(item => MapToResponseDto(item));
+        var result = items.Select(item => MapToResponseDto(item)).ToList();
+        return new PagedResult<ItemResponseDto>(result, count, paginationParams.PageNumber,paginationParams.PageSize){};
     }
 
     public async Task<bool?> UpdateItem(UpdateItemDto itemData, Guid id)
@@ -126,7 +142,7 @@ public class ItemService: IItemsService
         return MapToResponseDto(item);
     }
 
-    public async Task<IEnumerable<ItemResponseDto>?> GetUserItems(Guid id)
+    public async Task<IEnumerable<ItemResponseDto>?> GetUserItems(Guid id, ItemStatus? status = null)
     {
         _logger.LogInformation("looking for a user with id: {id}", id);
         var user = await _context.Users.FindAsync(id);
@@ -135,7 +151,12 @@ public class ItemService: IItemsService
             _logger.LogWarning("user with id: {id} is not found", id);
             return null;
         }
-        var result = await _context.Items.Where(item => item.UserId == id).ToListAsync();
+        var query = _context.Items.Where(item => item.UserId == id);
+        if (status.HasValue)
+        {
+            query = query.Where(item => item.Status == status.Value);
+        }
+        var result = await query.ToListAsync();
         return result.Select(item => MapToResponseDto(item));
     }
 
@@ -194,6 +215,21 @@ public class ItemService: IItemsService
     {
         _logger.LogInformation("Counting items for user {id}", id);
         return await _context.Items.Where(item => item.UserId == id).CountAsync();
+    }
+
+    public async Task<bool?> DeleteItem(Guid id)
+    {
+        _logger.LogInformation("checking if item with id: {id} exist", id);
+        var item = await _context.Items.FindAsync(id);
+        if(item == null)
+        {
+            _logger.LogWarning("Item with id {id} is not found", id);
+            return null;
+        }
+        _context.Items.Remove(item);
+        await _context.SaveChangesAsync();
+        _logger.LogInformation("Item {id} is deleted", id);
+        return true;
     }
 
     private static ItemResponseDto MapToResponseDto(Item item)

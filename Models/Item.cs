@@ -4,7 +4,8 @@ public enum ItemStatus
 {
     Active,
     Sold,
-    Canceled
+    Canceled,
+    Expired
 }
 
 public class Item

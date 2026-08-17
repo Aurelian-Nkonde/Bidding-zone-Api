@@ -59,7 +59,6 @@ public class UsersController: ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<LoginResponseDto>> Login([FromBody] LoginDto data)
     {
         _logger.LogWarning("Login validation failed for request.");
@@ -130,10 +129,10 @@ public class UsersController: ControllerBase
 
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<ActionResult<IEnumerable<UserResponseDto>>> GetUsers()
+    public async Task<ActionResult<PagedResult<UserResponseDto>>> GetUsers([FromQuery] int page)
     {
         _logger.LogInformation("fetching all users");
-        var result = await _usersService.GetUsers();
+        var result = await _usersService.GetUsers(page);
         return Ok(result);
     }
 
@@ -237,10 +236,27 @@ public class UsersController: ControllerBase
     }
 
 
+    [HttpDelete("{id}")]
+    [Authorize(Roles = "Admin")]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<ActionResult> DeleteUser([FromRoute] Guid id)
+    {
+        _logger.LogInformation("Attempting to delete user {UserId}", id);
+        var result = await _usersService.DeleteUser(id);
+        if (result == null)
+        {
+            _logger.LogWarning("user {UserId} not found for deletion", id);
+            return NotFound();
+        }
+        return NoContent();
+    }
+
+
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status201Created)]
-    public async Task<ActionResult> AddUser([FromBody] CreateUserDto data)
+    public async Task<ActionResult> Signup([FromBody] CreateUserDto data)
     {
         ValidationResult validationResult = await _createUserValidator.ValidateAsync(data);
         if(!validationResult.IsValid)

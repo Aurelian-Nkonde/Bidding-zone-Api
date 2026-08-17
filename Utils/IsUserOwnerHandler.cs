@@ -9,6 +9,11 @@ public class IsUserOwnerHandler: AuthorizationHandler<IsUserOwnerRequirement, Gu
         IsUserOwnerRequirement requirement,
         Guid resourceId)
     {
+    if(context.User.IsInRole("Admin"))
+        {
+            context.Succeed(requirement);
+            return Task.CompletedTask;
+        }
     var userId = context.User.FindFirst("sub")?.Value;
     if(userId == null)
         {

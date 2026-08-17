@@ -5,6 +5,7 @@ using bidding_zone_api.Services;
 using bidding_zone_api.Interfaces;
 
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using FluentValidation;
 using FluentValidation.Results;
 using bidding_zone_api.Dtos.Validators;
@@ -35,10 +36,21 @@ public class ItemsController: ControllerBase
 
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<ActionResult<IEnumerable<ItemResponseDto>>> GetItems()
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<IEnumerable<ItemResponseDto>>> GetItems([FromQuery] string? status, [FromQuery] int page)
     {
+        ItemStatus? parsedStatus = null;
+        if (!string.IsNullOrEmpty(status))
+        {
+            if (!Enum.TryParse<ItemStatus>(status, true, out var parsed))
+            {
+                _logger.LogWarning("Invalid status query value: {Status}", status);
+                return BadRequest();
+            }
+            parsedStatus = parsed;
+        }
         _logger.LogInformation("Fetching all items");
-        return Ok(await _itemsService.GetItems());
+        return Ok(await _itemsService.GetItems(page, parsedStatus));
     }
 
     [HttpGet("count")]
@@ -48,6 +60,32 @@ public class ItemsController: ControllerBase
         _logger.LogInformation("Fetching total item count");
         var count = await _itemsService.GetItemsCount();
         return Ok(count);
+    }
+
+    [HttpGet("user/{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<IEnumerable<ItemResponseDto>>> GetUserItemsList([FromRoute] Guid id, [FromQuery] string? status)
+    {
+        ItemStatus? parsedStatus = null;
+        if (!string.IsNullOrEmpty(status))
+        {
+            if (!Enum.TryParse<ItemStatus>(status, true, out var parsed))
+            {
+                _logger.LogWarning("Invalid status query value: {Status}", status);
+                return BadRequest();
+            }
+            parsedStatus = parsed;
+        }
+        _logger.LogInformation("Fetching items for user {UserId}", id);
+        var result = await _itemsService.GetUserItems(id, parsedStatus);
+        if (result == null)
+        {
+            _logger.LogWarning("user {UserId} not found", id);
+            return NotFound();
+        }
+        return Ok(result);
     }
 
     [HttpGet("user/{id}/count")]
@@ -137,6 +175,23 @@ public class ItemsController: ControllerBase
             return BadRequest();
         }
     }
+
+    [HttpDelete("{id}")]
+    [Authorize(Roles = "Admin")]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<ActionResult> DeleteItem([FromRoute] Guid id)
+    {
+        _logger.LogInformation("Attempting to delete item {ItemId}", id);
+        var result = await _itemsService.DeleteItem(id);
+        if (result == null)
+        {
+            _logger.LogWarning("Item {ItemId} not found for deletion", id);
+            return NotFound();
+        }
+        return NoContent();
+    }
+
 
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

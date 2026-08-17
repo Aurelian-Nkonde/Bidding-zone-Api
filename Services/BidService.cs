@@ -31,12 +31,19 @@ public class BidService: IBidService
         return BidResponseFormater(bid);
     }
 
-    public async Task<IEnumerable<BidResponseDto>?> GetBids()
+    public async Task<PagedResult<BidResponseDto>> GetBids(int page)
     {
         _logger.LogInformation("Fetching all bids");
-        var bids = await _context.Bids.ToListAsync();
+        PaginationParams paginationParams = new PaginationParams{PageNumber = page};
+        var count = await _context.Bids.CountAsync();
+        var bids = await _context.Bids
+            .OrderByDescending(b => b.CreatedAt)
+            .Skip((paginationParams.PageNumber - 1) * paginationParams.PageSize)
+            .Take(paginationParams.PageSize)
+            .ToListAsync();
         _logger.LogInformation("Fetched {Count} bids", bids.Count);
-        return bids.Select(bid => BidResponseFormater(bid));
+        var result = bids.Select(bid => BidResponseFormater(bid)).ToList();
+        return new PagedResult<BidResponseDto>(result, count, paginationParams.PageNumber, paginationParams.PageSize){};
     }
 
     public async Task<BidResponseDto> CreateBid(CreateBidDto bid)
@@ -95,7 +102,7 @@ public class BidService: IBidService
         return bids.Select(bid => BidResponseFormater(bid));
     }
 
-    public async Task<bool?> DeleteBid(Guid id,Guid userId)
+    public async Task<bool?> DeleteBid(Guid id, Guid userId, bool isAdmin = false)
     {
         _logger.LogInformation("Attempting to delete bid {id} for user {userId}", id, userId);
         var bid = await _context.Bids.FindAsync(id);
@@ -104,7 +111,7 @@ public class BidService: IBidService
             _logger.LogWarning("Bid with id {id} does not exist", id);
             throw new BadHttpRequestException("bid does not exist");
         }
-        if(bid.UserId != userId)
+        if(!isAdmin && bid.UserId != userId)
         {
             _logger.LogWarning("User with id: {userId} is not bid {id} owner", userId, id);
             throw new BadHttpRequestException("User is not bid owner");

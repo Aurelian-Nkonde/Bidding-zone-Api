@@ -1,8 +1,13 @@
 using bidding_zone_api.AppContext;
+using bidding_zone_api.Consumers;
 using bidding_zone_api.Dtos.Request;
 using bidding_zone_api.Interfaces;
+using bidding_zone_api.Jobs;
 using bidding_zone_api.Services;
 using FluentValidation;
+using Hangfire;
+using Hangfire.PostgreSql;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using bidding_zone_api.Dtos.Validators;
@@ -79,7 +84,25 @@ try
     builder.Services.AddScoped<IUsersService, UsersService>();
     builder.Services.AddScoped<IItemsService, ItemService>();
     builder.Services.AddScoped<IBidService, BidService>();
-    
+    builder.Services.AddScoped<IExpiredItemsJob, ExpiredItemsJob>();
+
+    builder.Services.AddHangfire(config => config.UsePostgreSqlStorage(c => c.UseNpgsqlConnection(connectionString)));
+    builder.Services.AddHangfireServer();
+
+    builder.Services.AddMassTransit(x =>
+    {
+        x.AddConsumer<ItemExpiredConsumer>();
+        x.UsingRabbitMq((context, cfg) =>
+        {
+            cfg.Host(builder.Configuration["RabbitMq:Host"], "/", h =>
+            {
+                h.Username(builder.Configuration["RabbitMq:Username"]!);
+                h.Password(builder.Configuration["RabbitMq:Password"]!);
+            });
+            cfg.ConfigureEndpoints(context);
+        });
+    });
+
     builder.Services.AddSerilog((services, lc) => lc
         .ReadFrom.Configuration(builder.Configuration)
         .ReadFrom.Services(services)
@@ -115,6 +138,17 @@ try
         });
     });
 
+    var frontendUrl = builder.Configuration["Frontend:Url"] ?? throw new InvalidOperationException("Frontend:Url is not configured");
+    var myOriginsCors= "_myOriginsCors";
+    builder.Services.AddCors(options =>
+    {
+        options.AddPolicy(name: myOriginsCors, policy =>
+        {
+            policy.WithOrigins(frontendUrl)
+                .AllowAnyHeader()
+                .AllowAnyMethod();
+        });
+    });
 
     var app = builder.Build();
 
@@ -132,11 +166,16 @@ try
 
     app.UseHttpsRedirection();
 
+    app.UseCors(myOriginsCors);
+
     app.UseAuthentication();
 
     app.UseAuthorization();
 
     app.MapControllers();
+
+    app.UseHangfireDashboard("/hangfire");
+    RecurringJob.AddOrUpdate<IExpiredItemsJob>("check-expired-items", job => job.CheckExpiredItemsAsync(), Cron.Minutely());
 
     app.Run();
 

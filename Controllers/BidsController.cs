@@ -1,3 +1,4 @@
+using System.IdentityModel.Tokens.Jwt;
 using bidding_zone_api.Dtos.Request;
 using bidding_zone_api.Dtos.Response;
 using bidding_zone_api.Interfaces;
@@ -5,6 +6,7 @@ using bidding_zone_api.Models;
 using bidding_zone_api.Services;
 using FluentValidation;
 using FluentValidation.Results;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace bidding_zone_api.Controllers;
@@ -34,10 +36,10 @@ public class BidsController: ControllerBase
 
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<ActionResult<IEnumerable<BidResponseDto>>> GetBids()
+    public async Task<ActionResult<PagedResult<BidResponseDto>>> GetBids([FromQuery] int page)
     {
         _bidLogger.LogInformation("Fetching all bids");
-        var bids = await _bidService.GetBids();
+        var bids = await _bidService.GetBids(page);
         return Ok(bids);
     }
 
@@ -85,33 +87,37 @@ public class BidsController: ControllerBase
 
     [HttpGet("{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<ActionResult<IEnumerable<BidResponseDto>>> GetABid([FromRoute]Guid id)
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<BidResponseDto>> GetABid([FromRoute]Guid id)
     {
         _bidLogger.LogInformation("Fetching bid {BidId}", id);
         var bid = await _bidService.GetBid(id);
         if(bid == null)
         {
             _bidLogger.LogWarning("Bid {BidId} not found", id);
+            return NotFound();
         }
         return Ok(bid);
     }
 
     [HttpDelete("{id}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [Authorize]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult> DeleteBid([FromRoute] Guid id)
     {
-        var userId = "e3b8da6a-3c57-43fa-9c16-723935ca52da";
-        if(!Guid.TryParse(userId, out Guid parsed))
+        var userIdClaim = HttpContext.User.FindFirst(JwtRegisteredClaimNames.Sub);
+        if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out var userId))
         {
             return BadRequest();
         }
+        var isAdmin = User.IsInRole("Admin");
 
-        _bidLogger.LogInformation("Attempting to delete bid {BidId} for user {UserId}", id, parsed);
+        _bidLogger.LogInformation("Attempting to delete bid {BidId} for user {UserId}", id, userId);
         try
         {
-            var bid = await _bidService.DeleteBid(id, parsed);
+            var bid = await _bidService.DeleteBid(id, userId, isAdmin);
             if(bid == null)
             {
                 _bidLogger.LogWarning("Bid {BidId} not found for deletion", id);

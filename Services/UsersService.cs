@@ -33,11 +33,18 @@ public class UsersService: IUsersService
     }
 
 
-    public async Task<IEnumerable<UserResponseDto>> GetUsers()
+    public async Task<PagedResult<UserResponseDto>> GetUsers(int page)
     {
         _logger.LogInformation("fetching all users");
-        var users = await _context.Users.ToListAsync();
-        return users.Select(user => FormatUserResponse(user));
+        PaginationParams paginationParams = new PaginationParams{PageNumber = page};
+        var count = await _context.Users.CountAsync();
+        var users = await _context.Users
+            .OrderByDescending(u => u.CreatedAt)
+            .Skip((paginationParams.PageNumber - 1) * paginationParams.PageSize)
+            .Take(paginationParams.PageSize)
+            .ToListAsync();
+        var result = users.Select(user => FormatUserResponse(user)).ToList();
+        return new PagedResult<UserResponseDto>(result, count, paginationParams.PageNumber, paginationParams.PageSize){};
     }
 
 
@@ -165,6 +172,22 @@ public class UsersService: IUsersService
         if(user == null) return null;
         if(!BCrypt.Net.BCrypt.Verify(password, user.Password)) return null;
         return FormatUserResponse(user);
+    }
+
+
+    public async Task<bool?> DeleteUser(Guid id)
+    {
+        _logger.LogInformation("looking for a user with id: {id}", id);
+        var user = await _context.Users.FindAsync(id);
+        if(user == null)
+        {
+            _logger.LogWarning("user with id: {id} is not found", id);
+            return null;
+        }
+        _context.Users.Remove(user);
+        await _context.SaveChangesAsync();
+        _logger.LogInformation("user {id} is deleted", id);
+        return true;
     }
 
 
